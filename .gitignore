@@ -6,3 +6,12 @@
 !/scripts/
 /scripts/pdg/cache/
 __pycache__/
+!/spikes/
+/spikes/samples/
+/spikes/phoenix/node_modules/
+/spikes/phoenix/.next/
+/spikes/phoenix/public/events/
+/spikes/phoenix/public/geometry/
+/spikes/phoenix/next-env.d.ts
+/spikes/phoenix/AGENTS.md
+/spikes/phoenix/*.tsbuildinfo
