@@ -16,6 +16,26 @@ const CAMERA_PRESETS: Record<string, { position: number[]; target: number[] }> =
   Top: { position: [-500, 12000, 0], target: [0, 0, 0] },
 };
 
+// Phoenix outlines a Mesh only; compound objects (photons, muons) store the uuid of a Group.
+function meshUuid(display: EventDisplay, uuid: string): string {
+  type Node = { uuid: string; isMesh?: boolean; traverse(fn: (child: Node) => void): void };
+  const object = display.getThreeManager().getSceneManager().getScene().getObjectByProperty("uuid", uuid) as Node | undefined;
+  let mesh: Node | undefined;
+  object?.traverse((child) => {
+    if (!mesh && child.isMesh) mesh = child;
+  });
+  return mesh?.uuid ?? uuid;
+}
+
+// highlightObject() adds to the current selection; clear it first.
+function focusObject(display: EventDisplay, uuid: string, moveCamera: boolean) {
+  display.disableHighlighting();
+  display.enableHighlighting();
+  const target = meshUuid(display, uuid);
+  if (moveCamera) display.lookAtObject(target);
+  else display.highlightObject(target);
+}
+
 export default function PhoenixViewer({ source, initialView }: { source: SourceId; initialView: ViewState | null }) {
   const displayRef = useRef<EventDisplay | null>(null);
   const selectedRef = useRef<Selected>({ name: "", attributes: [] });
@@ -138,14 +158,14 @@ export default function PhoenixViewer({ source, initialView }: { source: SourceI
       const objects = display.getCollection(view.selection.collection) as { uuid?: string }[];
       const uuid = objects?.[view.selection.index]?.uuid;
       if (uuid) {
-        display.highlightObject(uuid);
+        focusObject(display, uuid, false);
         setActiveItem({ ...view.selection, uuid });
       }
     }
   }
 
   function highlight(item: Item) {
-    displayRef.current?.lookAtObject(item.uuid);
+    if (displayRef.current) focusObject(displayRef.current, item.uuid, true);
     setActiveItem(item);
   }
 
