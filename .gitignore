@@ -3,3 +3,6 @@
 !/LICENSE
 !/LICENSE-CONTENT
 !/README.md
+!/scripts/
+/scripts/pdg/cache/
+__pycache__/
